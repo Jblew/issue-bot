@@ -17617,8 +17617,10 @@ try {
     rotateAssignees: core.getInput('rotate-assignees') === 'true',
     linkedComments: core.getInput('linked-comments') === 'true',
     linkedCommentsNewIssueText: core.getInput('linked-comments-new-issue-text'),
-    linkedCommentsPreviousIssueText: core.getInput('linked-comments-previous-issue-text')
+    linkedCommentsPreviousIssueText: core.getInput('linked-comments-previous-issue-text'),
+    multiple: core.getInput("multiple")
   };
+  core.info('MULTIPLE', multiple)
 
   const inputsValid = (0,_issue_bot__WEBPACK_IMPORTED_MODULE_0__/* .checkInputs */ .mC)(inputs);
 

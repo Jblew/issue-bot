@@ -15,7 +15,8 @@ inputs:
   title:
     description: |-
       Issue title, e.g. "Daily standup"
-    required: true
+    required: false
+    default: 'Title'
 
   body:
     description: |-
@@ -120,6 +121,11 @@ inputs:
       Requires "labels", "assignees".
     default: 'false'
     required: false
+
+  multiple:
+    description: |-
+      You can create multiple issues at once. Just pass a list where each of the items has the parameters described above.
+    required: true
 
 outputs:
   issue-number:
