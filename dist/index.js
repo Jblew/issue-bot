@@ -17659,6 +17659,7 @@ function parseMultiple(multipleRaw) {
     if (!Array.isArray(items)) {
       throw new Error('Not an array')
     }
+    return items
   } catch (error) {
     throw new Error(`Input 'multiple' has invalid JSON: ${error}`)
   }
