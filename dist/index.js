@@ -17620,8 +17620,16 @@ try {
     linkedCommentsPreviousIssueText: core.getInput('linked-comments-previous-issue-text'),
     multiple: core.getInput("multiple")
   };
-  core.info('MULTIPLE', multiple)
+  if (inputs.multiple) {
+    runMultiple(inputs, parseMultiple(inputs.multiple))
+  } else {
+    runSingle(inputs)
+  }  
+} catch (error) {
+  core.setFailed(error);
+}
 
+function runSingle(inputs) {
   const inputsValid = (0,_issue_bot__WEBPACK_IMPORTED_MODULE_0__/* .checkInputs */ .mC)(inputs);
 
   if (!inputsValid) {
@@ -17643,10 +17651,24 @@ try {
   }
 
   (0,_issue_bot__WEBPACK_IMPORTED_MODULE_0__/* .run */ .KH)(inputs);
-} catch (error) {
-  core.setFailed(error);
 }
 
+function parseMultiple(multipleRaw) {
+  try {
+    const items = JSON.parse(multipleRaw)
+    if (!Array.isArray(items)) {
+      throw new Error('Not an array')
+    }
+  } catch (error) {
+    throw new Error(`Input 'multiple' has invalid JSON: ${error}`)
+  }
+}
+
+function runMultiple(commonInputs, multipleItems) {
+  for (const single of multipleItems) {
+    runSingle({ ...commonInputs, ...single })
+  }
+}
 })();
 
 module.exports = __webpack_exports__;
