@@ -79,18 +79,11 @@ inputs:
     default: 'false'
     required: false
 
-  skip-on-previous:
-    description: :-
-      Skips creating issue if previous issue exists.
-    default: 'false'
-    required: false
-
-  previous-lookup-since:
+  at-datetime-iso:
     description: |-
-      Describes how far into the past should the search for previous issue continue. 
-      Useful for creating scheduled issues with rare occurance times. Formatted as ISO time e.g.:
-      "2022-08-19T00:00:00"
-    default: ''
+      In 'at-datetime-iso' mode an issue will be created only after the specified datetime and only
+      if an issue with the specified label doesn't already exist.
+      Formatted as ISO time e.g.: "2022-08-19T00:00:00"
     required: false
     
   linked-comments:

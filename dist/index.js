@@ -46,7 +46,7 @@ const checkInputs = (inputs) => {
   if (inputs.closePrevious) {
     ok = ok && !!inputs.labels;
   }
-  if (inputs.skipOnPrevious) {
+  if (inputs.atDatetimeISO) {
     ok = ok && !!inputs.labels;
   }
   if (inputs.linkedComments) {
@@ -203,7 +203,7 @@ const makeLinkedComments = async (previousIssueNumber, previousIssueText, newIss
 // Return previous issue matching both labels
 // @input labels: ['label1', 'label2']
 const getPreviousIssue = async (opts) => {
-  const { labels, since } = opts
+  const { labels, since } = opts;
   core.info(`Finding previous issue with labels: ${JSON.stringify(labels)}...`);
 
   let previousIssueNumber; let previousIssueNodeId; let previousAssignees = '';
@@ -212,7 +212,7 @@ const getPreviousIssue = async (opts) => {
     ...context.repo,
     labels,
     state: 'all',
-    since,
+    since: since ? since.toISOString() : undefined
   })).data[0];
 
   if (data) {
@@ -404,16 +404,21 @@ const run = async (inputs) => {
 
     let previousAssignee; let previousIssueNumber = -1; let previousIssueNodeId; let previousAssignees;
 
+    if (inputs.atDatetimeISO && inputs.atDatetimeISO.getTime() > Date.now()) {
+      core.info('\'at-datetime-iso\' specifies a future time. Skipping');
+      return;
+    }
+
     if (needPreviousIssue(inputs.pinned, inputs.closePrevious, inputs.skipOnPrevious, inputs.rotateAssignees, inputs.linkedComments)) {
       ({ previousIssueNumber, previousIssueNodeId, previousAssignees } = await getPreviousIssue(
-        { labels: inputs.labels, since: inputs.previousLookupSince }
+        { labels: inputs.labels, since: inputs.atDatetimeISO }
       ));
     }
 
-    if (issueExists(previousIssueNumber) && inputs.skipOnPrevious) {
-      core.info(`Previous issue exists (number ${previousIssueNumber}). Skipping.`);
+    if (issueExists(previousIssueNumber) && !!inputs.atDatetimeISO) {
+      core.info(`Previous issue exists (number ${previousIssueNumber}). Skipping ('at-datetime-iso' mode is turned on.).`);
       core.setOutput('previous-issue-number', String(previousIssueNumber));
-      return
+      return;
     }
 
     // Rotate assignee to next in list
@@ -17613,23 +17618,23 @@ try {
     pinned: core.getInput('pinned') === 'true',
     closePrevious: core.getInput('close-previous') === 'true',
     skipOnPrevious: core.getInput('skip-on-previous') === 'true',
-    previousLookupSince: core.getInput('previous-lookup-since') || undefined,
+    atDatetimeISO: core.getInput('at-datetime-iso') || undefined,
     rotateAssignees: core.getInput('rotate-assignees') === 'true',
     linkedComments: core.getInput('linked-comments') === 'true',
     linkedCommentsNewIssueText: core.getInput('linked-comments-new-issue-text'),
     linkedCommentsPreviousIssueText: core.getInput('linked-comments-previous-issue-text'),
-    multiple: core.getInput("multiple")
+    multiple: core.getInput('multiple')
   };
   if (inputs.multiple) {
-    runMultiple(inputs, parseMultiple(inputs.multiple))
+    runMultiple(inputs, parseMultiple(inputs.multiple));
   } else {
-    runSingle(inputs)
-  }  
+    runSingle(inputs);
+  }
 } catch (error) {
   core.setFailed(error);
 }
 
-function runSingle(inputs) {
+function runSingle (inputs) {
   const inputsValid = (0,_issue_bot__WEBPACK_IMPORTED_MODULE_0__/* .checkInputs */ .mC)(inputs);
 
   if (!inputsValid) {
@@ -17644,6 +17649,14 @@ function runSingle(inputs) {
     inputs.assignees = listToArray(inputs.assignees);
   }
 
+  if (inputs.atDatetimeISO) {
+    const timestamp = Date.parse(inputs.atDatetimeISO);
+    if (isNaN(timestamp)) {
+      throw new Error('Invalid ISO datetime in atDatetimeISO');
+    }
+    inputs.atDatetimeISO = new Date(timestamp);
+  }
+
   // default type of project board is repository board
   // https://docs.github.com/en/github/managing-your-work-on-github/about-project-boards
   if (!inputs.projectType) {
@@ -17653,23 +17666,24 @@ function runSingle(inputs) {
   (0,_issue_bot__WEBPACK_IMPORTED_MODULE_0__/* .run */ .KH)(inputs);
 }
 
-function parseMultiple(multipleRaw) {
+function parseMultiple (multipleRaw) {
   try {
-    const items = JSON.parse(multipleRaw)
+    const items = JSON.parse(multipleRaw);
     if (!Array.isArray(items)) {
-      throw new Error('Not an array')
+      throw new Error('Not an array');
     }
-    return items
+    return items;
   } catch (error) {
-    throw new Error(`Input 'multiple' has invalid JSON: ${error}`)
+    throw new Error(`Input 'multiple' has invalid JSON: ${error}`);
   }
 }
 
-function runMultiple(commonInputs, multipleItems) {
+function runMultiple (commonInputs, multipleItems) {
   for (const single of multipleItems) {
-    runSingle({ ...commonInputs, ...single })
+    runSingle({ ...commonInputs, ...single });
   }
 }
+
 })();
 
 module.exports = __webpack_exports__;
