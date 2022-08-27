@@ -17685,6 +17685,7 @@ function runMultiple (commonInputs, multipleItems) {
 }
 
 function mapInputKeysMultiple (inputs) {
+  const spreadOptionalKey = (obj, key, newKey) => (typeof obj[key] !== 'undefined' && { [newKey]: obj[key] });
   return {
     ...inputs,
     ...spreadOptionalKey(inputs, 'project-type', 'projectType'),
@@ -17698,8 +17699,6 @@ function mapInputKeysMultiple (inputs) {
     ...spreadOptionalKey(inputs, 'linked-comments-previous-issue-text', 'linkedCommentsPreviousIssueText')
   };
 }
-
-const spreadOptionalKey = (obj, key, newKey) => (typeof obj[key] !== 'undefined' && { [newKey]: obj[key] });
 
 })();
 
