@@ -17672,7 +17672,7 @@ function parseMultiple (multipleRaw) {
     if (!Array.isArray(items)) {
       throw new Error('Not an array');
     }
-    return items;
+    return items.map(mapInputKeysMultiple);
   } catch (error) {
     throw new Error(`Input 'multiple' has invalid JSON: ${error}`);
   }
@@ -17683,6 +17683,23 @@ function runMultiple (commonInputs, multipleItems) {
     runSingle({ ...commonInputs, ...single });
   }
 }
+
+function mapInputKeysMultiple (inputs) {
+  return {
+    ...inputs,
+    ...spreadOptionalKey(inputs, 'project-type', 'projectType'),
+    ...spreadOptionalKey(inputs, 'project-v2-path', 'projectV2'),
+    ...spreadOptionalKey(inputs, 'close-previous', 'closePrevious'),
+    ...spreadOptionalKey(inputs, 'skip-on-previous', 'skipOnPrevious'),
+    ...spreadOptionalKey(inputs, 'at-datetime-iso', 'atDatetimeISO'),
+    ...spreadOptionalKey(inputs, 'rotate-assignees', 'rotateAssignees'),
+    ...spreadOptionalKey(inputs, 'linked-comments', 'linkedComments'),
+    ...spreadOptionalKey(inputs, 'linked-comments-new-issue-text', 'linkedCommentsNewIssueText'),
+    ...spreadOptionalKey(inputs, 'linked-comments-previous-issue-text', 'linkedCommentsPreviousIssueText')
+  };
+}
+
+const spreadOptionalKey = (obj, key, newKey) => (typeof obj[key] !== 'undefined' && { [newKey]: obj[key] });
 
 })();
 
