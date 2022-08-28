@@ -17635,7 +17635,7 @@ try {
   core.setFailed(error);
 }
 
-function runSingle (inputs) {
+async function runSingle (inputs) {
   const inputsValid = (0,_issue_bot__WEBPACK_IMPORTED_MODULE_0__/* .checkInputs */ .mC)(inputs);
 
   if (!inputsValid) {
@@ -17664,7 +17664,7 @@ function runSingle (inputs) {
     inputs.projectType = 'repository';
   }
 
-  (0,_issue_bot__WEBPACK_IMPORTED_MODULE_0__/* .run */ .KH)(inputs);
+  await (0,_issue_bot__WEBPACK_IMPORTED_MODULE_0__/* .run */ .KH)(inputs);
 }
 
 function parseMultiple (multipleRaw) {
@@ -17679,9 +17679,9 @@ function parseMultiple (multipleRaw) {
   }
 }
 
-function runMultiple (commonInputs, multipleItems) {
+async function runMultiple (commonInputs, multipleItems) {
   for (const single of multipleItems) {
-    runSingle({ ...commonInputs, ...single });
+    await runSingle({ ...commonInputs, ...single });
   }
 }
 
