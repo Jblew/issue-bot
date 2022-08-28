@@ -409,10 +409,11 @@ const run = async (inputs) => {
       return;
     }
 
-    if (needPreviousIssue(inputs.pinned, inputs.closePrevious, inputs.skipOnPrevious, inputs.rotateAssignees, inputs.linkedComments, inputs.atDatetime)) {
+    if (needPreviousIssue(inputs.pinned, inputs.closePrevious, inputs.skipOnPrevious, inputs.rotateAssignees, inputs.linkedComments, !!inputs.atDatetime)) {
       ({ previousIssueNumber, previousIssueNodeId, previousAssignees } = await getPreviousIssue(
         { labels: inputs.labels, since: inputs.atDatetime }
       ));
+      core.info(`Previous issue: ${previousIssueNumber}, lookup: labels=${inputs.labels}, since=${inputs.atDatetime}`);
     }
 
     if (issueExists(previousIssueNumber) && !!inputs.atDatetime) {
