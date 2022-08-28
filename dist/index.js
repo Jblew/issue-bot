@@ -17627,7 +17627,8 @@ try {
     multiple: core.getInput('multiple')
   };
   if (inputs.multiple) {
-    runMultiple(inputs, parseMultiple(inputs.multiple));
+    const { multiple, ...inputsTheRest } = inputs;
+    runMultiple(inputsTheRest, parseMultiple(multiple));
   } else {
     runSingle(inputs);
   }
