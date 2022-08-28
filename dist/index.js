@@ -46,7 +46,7 @@ const checkInputs = (inputs) => {
   if (inputs.closePrevious) {
     ok = ok && !!inputs.labels;
   }
-  if (inputs.atDatetimeISO) {
+  if (inputs.atDatetime) {
     ok = ok && !!inputs.labels;
   }
   if (inputs.linkedComments) {
@@ -404,18 +404,18 @@ const run = async (inputs) => {
 
     let previousAssignee; let previousIssueNumber = -1; let previousIssueNodeId; let previousAssignees;
 
-    if (inputs.atDatetimeISO && inputs.atDatetimeISO.getTime() > Date.now()) {
+    if (inputs.atDatetime && inputs.atDatetime.getTime() > Date.now()) {
       core.info('\'at-datetime-iso\' specifies a future time. Skipping');
       return;
     }
 
-    if (needPreviousIssue(inputs.pinned, inputs.closePrevious, inputs.skipOnPrevious, inputs.rotateAssignees, inputs.linkedComments)) {
+    if (needPreviousIssue(inputs.pinned, inputs.closePrevious, inputs.skipOnPrevious, inputs.rotateAssignees, inputs.linkedComments, inputs.atDatetime)) {
       ({ previousIssueNumber, previousIssueNodeId, previousAssignees } = await getPreviousIssue(
-        { labels: inputs.labels, since: inputs.atDatetimeISO }
+        { labels: inputs.labels, since: inputs.atDatetime }
       ));
     }
 
-    if (issueExists(previousIssueNumber) && !!inputs.atDatetimeISO) {
+    if (issueExists(previousIssueNumber) && !!inputs.atDatetime) {
       core.info(`Previous issue exists (number ${previousIssueNumber}). Skipping ('at-datetime-iso' mode is turned on.).`);
       core.setOutput('previous-issue-number', String(previousIssueNumber));
       return;
@@ -17618,7 +17618,7 @@ try {
     pinned: core.getInput('pinned') === 'true',
     closePrevious: core.getInput('close-previous') === 'true',
     skipOnPrevious: core.getInput('skip-on-previous') === 'true',
-    atDatetimeISO: core.getInput('at-datetime-iso') || undefined,
+    atDatetime: core.getInput('at-datetime-iso') || undefined,
     rotateAssignees: core.getInput('rotate-assignees') === 'true',
     linkedComments: core.getInput('linked-comments') === 'true',
     linkedCommentsNewIssueText: core.getInput('linked-comments-new-issue-text'),
@@ -17654,7 +17654,7 @@ function runSingle (inputs) {
     if (isNaN(timestamp)) {
       throw new Error('Invalid ISO datetime in atDatetimeISO');
     }
-    inputs.atDatetimeISO = new Date(timestamp);
+    inputs.atDatetime = new Date(timestamp);
   }
 
   // default type of project board is repository board
@@ -17692,7 +17692,7 @@ function mapInputKeysMultiple (inputs) {
     ...spreadOptionalKey(inputs, 'project-v2-path', 'projectV2'),
     ...spreadOptionalKey(inputs, 'close-previous', 'closePrevious'),
     ...spreadOptionalKey(inputs, 'skip-on-previous', 'skipOnPrevious'),
-    ...spreadOptionalKey(inputs, 'at-datetime-iso', 'atDatetimeISO'),
+    ...spreadOptionalKey(inputs, 'at-datetime-iso', 'atDatetime'),
     ...spreadOptionalKey(inputs, 'rotate-assignees', 'rotateAssignees'),
     ...spreadOptionalKey(inputs, 'linked-comments', 'linkedComments'),
     ...spreadOptionalKey(inputs, 'linked-comments-new-issue-text', 'linkedCommentsNewIssueText'),
